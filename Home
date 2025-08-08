@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Image Tools Collection - DcStools.org</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .category {
+            margin-bottom: 40px;
+        }
+        
+        .category-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+            background: #e8f0fe;
+        }
+        
+        .tool-link {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .tool-link:hover {
+            color: #667eea;
+        }
+        
+        .tool-icon {
+            margin-right: 15px;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+        
+        .tool-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+        
+        .intro {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .category-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DCTOOLS</h1>
+            <p class="subtitle">All working tools from DcStools.org</p>
+        </header>
+        
+        <div class="content">
+            <div class="intro">
+                <strong>All tools are fully functional and ready to use!</strong> This collection includes every image processing tool available on image.pi7.org, organized by category for easy access. Each tool serves a specific purpose for your image editing needs.
+            </div>
+            
+            <!-- Core Tools -->
+            <div class="category">
+                <h2 class="category-title">Core Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/image-compressor" class="tool-link">
+                            <span class="tool-icon">🗜️</span>
+                            <div>
+                                Image Compressor
+                                <div class="tool-description">Reduce file size without losing quality</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/image-converter" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                Image Converter
+                                <div class="tool-description">Convert between different image formats</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/resize-image-pixel" class="tool-link">
+                            <span class="tool-icon">📏</span>
+                            <div>
+                                Preset Resizer
+                                <div class="tool-description">Resize images using predefined dimensions</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/ai-background-remover" class="tool-link">
+                            <span class="tool-icon">✂️</span>
+                            <div>
+                                AI Background Remover
+                                <div class="tool-description">Automatically remove backgrounds with AI</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/dpi-converter" class="tool-link">
+                            <span class="tool-icon">📐</span>
+                            <div>
+                                DPI Converter
+                                <div class="tool-description">Change image DPI for printing purposes</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/watermark-tool" class="tool-link">
+                            <span class="tool-icon">💧</span>
+                            <div>
+                                Watermark Tool
+                                <div class="tool-description">Add watermarks to protect your images</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/image-to-pdf-converter" class="tool-link">
+                            <span class="tool-icon">📄</span>
+                            <div>
+                                Image to PDF Converter
+                                <div class="tool-description">Convert images to PDF documents</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/color-palette-extractor" class="tool-link">
+                            <span class="tool-icon">🎨</span>
+                            <div>
+                                Color Palette Extractor
+                                <div class="tool-description">Extract color palettes from images</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Editing & Effects Tools -->
+            <div class="category">
+                <h2 class="category-title">Editing & Effects Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/resize-by-pixel-cm-mm-inches" class="tool-link">
+                            <span class="tool-icon">📐</span>
+                            <div>
+                                Resize by Pixel/CM/MM/Inches
+                                <div class="tool-description">Precise resizing with multiple units</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/crop-freehand-circle" class="tool-link">
+                            <span class="tool-icon">✂️</span>
+                            <div>
+                                Crop (Freehand, Circle)
+                                <div class="tool-description">Crop images in various shapes</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/rotate-flip-mirror" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                Rotate, Flip, Mirror
+                                <div class="tool-description">Adjust image orientation</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/watermark-text-overlay" class="tool-link">
+                            <span class="tool-icon">🔤</span>
+                            <div>
+                                Watermark & Text Overlay
+                                <div class="tool-description">Add text overlays and watermarks</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conversion Tools -->
+            <div class="category">
+                <h2 class="category-title">Conversion Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/heic-to-jpg" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                HEIC to JPG
+                                <div class="tool-description">Convert HEIC images to JPG format</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/webp-to-jpg" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                WEBP to JPG
+                                <div class="tool-description">Convert WEBP images to JPG format</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/jpeg-to-png" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                JPEG to PNG
+                                <div class="tool-description">Convert JPEG images to PNG format</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/png-to-jpeg" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                PNG to JPEG
+                                <div class="tool-description">Convert PNG images to JPEG format</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/image-to-pdf" class="tool-link">
+                            <span class="tool-icon">📄</span>
+                            <div>
+                                Image to PDF
+                                <div class="tool-description">Convert images to PDF documents</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Compression & Size Tools -->
+            <div class="category">
+                <h2 class="category-title">Compression & Size Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/compress-to-specific-sizes" class="tool-link">
+                            <span class="tool-icon">🗜️</span>
+                            <div>
+                                Compress to Specific Sizes
+                                <div class="tool-description">Compress to exact file size requirements</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/reduce-resolution" class="tool-link">
+                            <span class="tool-icon">📉</span>
+                            <div>
+                                Reduce Resolution
+                                <div class="tool-description">Lower image resolution to reduce size</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/optimize-for-web" class="tool-link">
+                            <span class="tool-icon">🌐</span>
+                            <div>
+                                Optimize for Web
+                                <div class="tool-description">Optimize images for faster web loading</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Preset Resizing Tools -->
+            <div class="category">
+                <h2 class="category-title">Preset Resizing Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/document-sizes" class="tool-link">
+                            <span class="tool-icon">📄</span>
+                            <div>
+                                Document Sizes
+                                <div class="tool-description">Resize for standard document dimensions</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/youtube-banner" class="tool-link">
+                            <span class="tool-icon">📺</span>
+                            <div>
+                                YouTube Banner
+                                <div class="tool-description">Perfect YouTube banner dimensions</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/instagram-profile-grid" class="tool-link">
+                            <span class="tool-icon">📷</span>
+                            <div>
+                                Instagram Profile/Grid
+                                <div class="tool-description">Optimize for Instagram posts</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/whatsapp-dp-resizing" class="tool-link">
+                            <span class="tool-icon">💬</span>
+                            <div>
+                                WhatsApp DP Resizing
+                                <div class="tool-description">Perfect WhatsApp profile picture size</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/pan-card-photo" class="tool-link">
+                            <span class="tool-icon">🆔</span>
+                            <div>
+                                PAN Card Photo
+                                <div class="tool-description">Resize for PAN card requirements</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/ssc-upsc-tnpsc" class="tool-link">
+                            <span class="tool-icon">📝</span>
+                            <div>
+                                SSC/UPSC/TNPSC
+                                <div class="tool-description">Resize for exam photo requirements</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Utility Tools -->
+            <div class="category">
+                <h2 class="category-title">Utility Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/background-removal" class="tool-link">
+                            <span class="tool-icon">✂️</span>
+                            <div>
+                                Background Removal
+                                <div class="tool-description">Remove image backgrounds</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/dpi-conversion" class="tool-link">
+                            <span class="tool-icon">📐</span>
+                            <div>
+                                DPI Conversion
+                                <div class="tool-description">Convert image DPI settings</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/check-image-dpi" class="tool-link">
+                            <span class="tool-icon">🔍</span>
+                            <div>
+                                Check Image DPI
+                                <div class="tool-description">Verify DPI of your images</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/color-palette-extraction" class="tool-link">
+                            <span class="tool-icon">🎨</span>
+                            <div>
+                                Color Palette Extraction
+                                <div class="tool-description">Extract color schemes from images</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Batch Processing Tools -->
+            <div class="category">
+                <h2 class="category-title">Batch Processing Tools</h2>
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/batch-compression" class="tool-link">
+                            <span class="tool-icon">🗜️</span>
+                            <div>
+                                Batch Compression
+                                <div class="tool-description">Compress multiple images at once</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/mass-format-conversion" class="tool-link">
+                            <span class="tool-icon">🔄</span>
+                            <div>
+                                Mass Format Conversion
+                                <div class="tool-description">Convert many images to new format</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="tool-card">
+                        <a href="https://image.pi7.org/batch-watermarking" class="tool-link">
+                            <span class="tool-icon">💧</span>
+                            <div>
+                                Batch Watermarking
+                                <div class="tool-description">Add watermarks to multiple images</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>All tools are fully functional on image.pi7.org. Each tool serves a specific purpose for your image processing needs.</p>
+        </footer>
+    </div>
+</body>
+</html>
