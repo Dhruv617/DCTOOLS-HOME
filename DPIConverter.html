@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPI Converter - Professional Image Resolution Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #334155;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .card-content {
+            padding: 30px;
+        }
+        
+        /* Upload Section */
+        .upload-area {
+            border: 3px dashed #cbd5e1;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: scale(1.02);
+        }
+        
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e9d8fd;
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+        
+        .upload-subtext {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .image-info {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        /* Settings Section */
+        .settings-group {
+            margin-bottom: 30px;
+        }
+        
+        .settings-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .settings-label i {
+            color: #667eea;
+        }
+        
+        .dpi-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .dpi-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .dpi-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .dpi-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .dpi-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .dpi-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .custom-dpi {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .custom-dpi input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .custom-dpi input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .custom-dpi button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .custom-dpi button:hover {
+            background: #5a67d8;
+        }
+        
+        .dimension-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .dimension-group {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .dimension-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #475569;
+        }
+        
+        .dimension-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .dimension-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .dimension-input select {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .lock-aspect {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .lock-aspect input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        /* Preview Section */
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .preview-box {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .preview-info {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #f0f4ff;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .notification.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+        
+        .notification.success .notification-icon {
+            color: #10b981;
+        }
+        
+        .notification.error .notification-icon {
+            color: #ef4444;
+        }
+        
+        .notification-text {
+            font-weight: 500;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .dimension-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DPI Converter</h1>
+            <p class="subtitle">Professional tool to convert image resolution and dimensions while maintaining quality</p>
+        </header>
+        
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-upload"></i>
+                    Upload Image
+                </div>
+                <div class="card-content">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <div class="upload-text">Drop your image here</div>
+                        <div class="upload-subtext">or click to browse (JPG, PNG, WebP - Max 20MB)</div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*">
+                    
+                    <div class="image-info" id="imageInfo" style="display: none;">
+                        <div class="info-row">
+                            <span class="info-label">File Name:</span>
+                            <span class="info-value" id="fileName">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Dimensions:</span>
+                            <span class="info-value" id="originalDimensions">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Current DPI:</span>
+                            <span class="info-value" id="currentDPI">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">File Size:</span>
+                            <span class="info-value" id="fileSize">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cog"></i>
+                    Conversion Settings
+                </div>
+                <div class="card-content">
+                    <div class="settings-group">
+                        <div class="settings-label">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                            Target DPI
+                        </div>
+                        <div class="dpi-options">
+                            <div class="dpi-option" data-dpi="72">
+                                <div class="dpi-value">72</div>
+                                <div class="dpi-label">Web</div>
+                            </div>
+                            <div class="dpi-option" data-dpi="150">
+                                <div class="dpi-value">150</div>
+                                <div class="dpi-label">Screen</div>
+                            </div>
+                            <div class="dpi-option selected" data-dpi="300">
+                                <div class="dpi-value">300</div>
+                                <div class="dpi-label">Print</div>
+                            </div>
+                            <div class="dpi-option" data-dpi="600">
+                                <div class="dpi-value">600</div>
+                                <div class="dpi-label">High Quality</div>
+                            </div>
+                            <div class="dpi-option" data-dpi="1200">
+                                <div class="dpi-value">1200</div>
+                                <div class="dpi-label">Ultra HD</div>
+                            </div>
+                        </div>
+                        <div class="custom-dpi">
+                            <input type="number" id="customDpi" placeholder="Enter custom DPI" min="1" max="9999">
+                            <button id="applyCustomDpi">Apply</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <div class="settings-label">
+                            <i class="fas fa-ruler-combined"></i>
+                            Dimensions
+                        </div>
+                        <div class="dimension-controls">
+                            <div class="dimension-group">
+                                <div class="dimension-label">Width</div>
+                                <div class="dimension-input">
+                                    <input type="number" id="widthInput" placeholder="Width" min="1">
+                                    <select id="widthUnit">
+                                        <option value="px">Pixels</option>
+                                        <option value="in">Inches</option>
+                                        <option value="cm">Centimeters</option>
+                                        <option value="mm">Millimeters</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="dimension-group">
+                                <div class="dimension-label">Height</div>
+                                <div class="dimension-input">
+                                    <input type="number" id="heightInput" placeholder="Height" min="1">
+                                    <select id="heightUnit">
+                                        <option value="px">Pixels</option>
+                                        <option value="in">Inches</option>
+                                        <option value="cm">Centimeters</option>
+                                        <option value="mm">Millimeters</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lock-aspect">
+                            <input type="checkbox" id="lockAspect" checked>
+                            <label for="lockAspect">Lock aspect ratio</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preview Section -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-eye"></i>
+                Preview
+            </div>
+            <div class="card-content">
+                <div class="preview-container">
+                    <div class="preview-box">
+                        <div class="preview-title">
+                            <i class="fas fa-image"></i>
+                            Original
+                        </div>
+                        <img id="originalPreview" class="preview-image" src="" alt="Original" style="display: none;">
+                        <div id="originalPlaceholder" style="padding: 60px 20px; color: #94a3b8;">
+                            <i class="fas fa-image" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                            <p>Upload an image to see preview</p>
+                        </div>
+                        <div class="preview-info" id="originalInfo" style="display: none;"></div>
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-title">
+                            <i class="fas fa-magic"></i>
+                            Converted
+                        </div>
+                        <canvas id="convertedPreview" class="preview-image" style="display: none;"></canvas>
+                        <div id="convertedPlaceholder" style="padding: 60px 20px; color: #94a3b8;">
+                            <i class="fas fa-magic" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                            <p>Converted image will appear here</p>
+                        </div>
+                        <div class="preview-info" id="convertedInfo" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="resetBtn">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </button>
+                    <button class="btn btn-primary" id="convertBtn" disabled>
+                        <i class="fas fa-sync-alt"></i>
+                        Convert Image
+                    </button>
+                    <button class="btn btn-primary" id="downloadBtn" disabled>
+                        <i class="fas fa-download"></i>
+                        Download
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle notification-icon"></i>
+        <span class="notification-text">Success!</span>
+    </div>
+    
+    <script>
+        // Application state
+        let uploadedImage = null;
+        let originalImageInfo = null;
+        let targetDPI = 300;
+        let aspectRatio = 1;
+        
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imageInfo = document.getElementById('imageInfo');
+        const originalPreview = document.getElementById('originalPreview');
+        const originalPlaceholder = document.getElementById('originalPlaceholder');
+        const convertedPreview = document.getElementById('convertedPreview');
+        const convertedPlaceholder = document.getElementById('convertedPlaceholder');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Upload
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+            
+            // DPI selection
+            document.querySelectorAll('.dpi-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.dpi-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    targetDPI = parseInt(option.dataset.dpi);
+                    updateConversionPreview();
+                });
+            });
+            
+            // Custom DPI
+            document.getElementById('applyCustomDpi').addEventListener('click', () => {
+                const customDpi = parseInt(document.getElementById('customDpi').value);
+                if (customDpi && customDpi > 0) {
+                    document.querySelectorAll('.dpi-option').forEach(opt => opt.classList.remove('selected'));
+                    targetDPI = customDpi;
+                    updateConversionPreview();
+                    showNotification(`Custom DPI set to ${customDpi}`);
+                }
+            });
+            
+            // Dimension inputs
+            const widthInput = document.getElementById('widthInput');
+            const heightInput = document.getElementById('heightInput');
+            const widthUnit = document.getElementById('widthUnit');
+            const heightUnit = document.getElementById('heightUnit');
+            const lockAspect = document.getElementById('lockAspect');
+            
+            widthInput.addEventListener('input', () => {
+                if (lockAspect.checked && widthInput.value) {
+                    const width = parseFloat(widthInput.value);
+                    const height = Math.round(width / aspectRatio);
+                    heightInput.value = height;
+                }
+                updateConversionPreview();
+            });
+            
+            heightInput.addEventListener('input', () => {
+                if (lockAspect.checked && heightInput.value) {
+                    const height = parseFloat(heightInput.value);
+                    const width = Math.round(height * aspectRatio);
+                    widthInput.value = width;
+                }
+                updateConversionPreview();
+            });
+            
+            widthUnit.addEventListener('change', updateConversionPreview);
+            heightUnit.addEventListener('change', updateConversionPreview);
+            lockAspect.addEventListener('change', updateConversionPreview);
+            
+            // Action buttons
+            convertBtn.addEventListener('click', convertImage);
+            downloadBtn.addEventListener('click', downloadImage);
+            resetBtn.addEventListener('click', resetAll);
+        }
+        
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+        
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please upload an image file', 'error');
+                return;
+            }
+            
+            if (file.size > 20 * 1024 * 1024) {
+                showNotification('File size must be less than 20MB', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImage = new Image();
+                uploadedImage.onload = function() {
+                    displayImageInfo(file, uploadedImage);
+                    displayOriginalPreview(e.target.result);
+                    updateConversionPreview();
+                    convertBtn.disabled = false;
+                };
+                uploadedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function displayImageInfo(file, image) {
+            originalImageInfo = {
+                name: file.name,
+                width: image.width,
+                height: image.height,
+                size: file.size,
+                dpi: 72 // Default DPI for web images
+            };
+            
+            aspectRatio = image.width / image.height;
+            
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('originalDimensions').textContent = `${image.width} × ${image.height} px`;
+            document.getElementById('currentDPI').textContent = `${originalImageInfo.dpi} DPI`;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            
+            imageInfo.style.display = 'block';
+            
+            // Set initial dimension values
+            document.getElementById('widthInput').value = image.width;
+            document.getElementById('heightInput').value = image.height;
+        }
+        
+        function displayOriginalPreview(src) {
+            originalPreview.src = src;
+            originalPreview.style.display = 'block';
+            originalPlaceholder.style.display = 'none';
+            
+            // Display original info
+            const info = `
+                Dimensions: ${originalImageInfo.width} × ${originalImageInfo.height} pixels<br>
+                DPI: ${originalImageInfo.dpi}<br>
+                Size: ${formatFileSize(originalImageInfo.size)}
+            `;
+            document.getElementById('originalInfo').innerHTML = info;
+            document.getElementById('originalInfo').style.display = 'block';
+        }
+        
+        function updateConversionPreview() {
+            if (!uploadedImage || !originalImageInfo) return;
+            
+            const widthInput = document.getElementById('widthInput');
+            const heightInput = document.getElementById('heightInput');
+            const widthUnit = document.getElementById('widthUnit');
+            const heightUnit = document.getElementById('heightUnit');
+            
+            let targetWidth, targetHeight;
+            
+            // Calculate target dimensions
+            if (widthInput.value && widthUnit.value === 'px') {
+                targetWidth = parseInt(widthInput.value);
+                targetHeight = heightInput.value ? parseInt(heightInput.value) : Math.round(targetWidth / aspectRatio);
+            } else {
+                // Convert from physical units to pixels
+                const widthInInches = convertToInches(parseFloat(widthInput.value) || originalImageInfo.width / originalImageInfo.dpi, widthUnit.value);
+                const heightInInches = convertToInches(parseFloat(heightInput.value) || originalImageInfo.height / originalImageInfo.dpi, heightUnit.value);
+                
+                targetWidth = Math.round(widthInInches * targetDPI);
+                targetHeight = Math.round(heightInInches * targetDPI);
+            }
+            
+            // Update canvas preview
+            const canvas = convertedPreview;
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            // Draw the image with new dimensions
+            ctx.drawImage(uploadedImage, 0, 0, targetWidth, targetHeight);
+            
+            // Show converted preview
+            convertedPreview.style.display = 'block';
+            convertedPlaceholder.style.display = 'none';
+            
+            // Calculate new file size (approximation)
+            const originalPixels = originalImageInfo.width * originalImageInfo.height;
+            const newPixels = targetWidth * targetHeight;
+            const sizeRatio = newPixels / originalPixels;
+            const estimatedSize = Math.round(originalImageInfo.size * sizeRatio);
+            
+            // Display converted info
+            const info = `
+                Dimensions: ${targetWidth} × ${targetHeight} pixels<br>
+                DPI: ${targetDPI}<br>
+                Physical Size: ${(targetWidth / targetDPI).toFixed(2)}" × ${(targetHeight / targetDPI).toFixed(2)}"<br>
+                Estimated Size: ${formatFileSize(estimatedSize)}
+            `;
+            document.getElementById('convertedInfo').innerHTML = info;
+            document.getElementById('convertedInfo').style.display = 'block';
+        }
+        
+        function convertToInches(value, unit) {
+            switch (unit) {
+                case 'in': return value;
+                case 'cm': return value / 2.54;
+                case 'mm': return value / 25.4;
+                case 'px': return value / targetDPI;
+                default: return value;
+            }
+        }
+        
+        function convertImage() {
+            if (!uploadedImage) return;
+            
+            updateConversionPreview();
+            downloadBtn.disabled = false;
+            showNotification('Image converted successfully!');
+        }
+        
+        function downloadImage() {
+            const canvas = convertedPreview;
+            const link = document.createElement('a');
+            
+            const originalName = originalImageInfo.name.split('.')[0];
+            link.download = `${originalName}_${targetDPI}dpi.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            showNotification('Image downloaded successfully!');
+        }
+        
+        function resetAll() {
+            // Reset all inputs
+            fileInput.value = '';
+            document.getElementById('widthInput').value = '';
+            document.getElementById('heightInput').value = '';
+            document.getElementById('customDpi').value = '';
+            
+            // Reset to default DPI
+            document.querySelectorAll('.dpi-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('[data-dpi="300"]').classList.add('selected');
+            targetDPI = 300;
+            
+            // Hide elements
+            imageInfo.style.display = 'none';
+            originalPreview.style.display = 'none';
+            originalPlaceholder.style.display = 'block';
+            convertedPreview.style.display = 'none';
+            convertedPlaceholder.style.display = 'block';
+            document.getElementById('originalInfo').style.display = 'none';
+            document.getElementById('convertedInfo').style.display = 'none';
+            
+            // Disable buttons
+            convertBtn.disabled = true;
+            downloadBtn.disabled = true;
+            
+            // Clear state
+            uploadedImage = null;
+            originalImageInfo = null;
+            
+            showNotification('All settings reset');
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('.notification-icon');
+            const text = notification.querySelector('.notification-text');
+            
+            text.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle notification-icon';
+            } else {
+                icon.className = 'fas fa-exclamation-circle notification-icon';
+            }
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
