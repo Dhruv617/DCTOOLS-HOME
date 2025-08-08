@@ -621,6 +621,58 @@
             margin-top: 30px;
         }
         
+        /* Processing overlay */
+        .processing-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .processing-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .processing-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .processing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .processing-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #334155;
+        }
+        
         /* Notification */
         .notification {
             position: fixed;
@@ -960,6 +1012,13 @@
         </div>
     </div>
     
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="processing-content">
+            <div class="processing-spinner"></div>
+            <div class="processing-text">Processing your photo...</div>
+        </div>
+    </div>
+    
     <div class="notification" id="notification">
         <i class="fas fa-check-circle notification-icon"></i>
         <span class="notification-text">Success!</span>
@@ -1222,6 +1281,7 @@
         let backgroundType = 'original';
         let backgroundColor = '#ffffff';
         let downloadType = 'single';
+        let processedImageData = null;
         
         // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1569,7 +1629,92 @@
         }
         
         function initializeDownload() {
-            updatePreview();
+            // Process the image with background changes
+            processImageWithBackground().then(() => {
+                updatePreview();
+            });
+        }
+        
+        function processImageWithBackground() {
+            return new Promise((resolve) => {
+                if (!canvas || !selectedCountry) {
+                    resolve();
+                    return;
+                }
+                
+                showProcessing(true);
+                
+                // Create a temporary canvas for processing
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Set the canvas size to match the country's dimensions
+                const country = countryData[selectedCountry];
+                const aspectRatio = country.dimensions.width / country.dimensions.height;
+                
+                // Set a reasonable size for processing (300 DPI)
+                const mmToInch = 0.0393701;
+                const dpi = 300;
+                const widthInPixels = Math.round(country.dimensions.width * mmToInch * dpi);
+                const heightInPixels = Math.round(country.dimensions.height * mmToInch * dpi);
+                
+                tempCanvas.width = widthInPixels;
+                tempCanvas.height = heightInPixels;
+                
+                // Get the current image from the editor canvas
+                const sourceCanvas = canvas;
+                const sourceCtx = ctx;
+                
+                // Draw the image with the selected background
+                if (backgroundType === 'original') {
+                    // Just use the original image
+                    tempCtx.drawImage(sourceCanvas, 0, 0, widthInPixels, heightInPixels);
+                } else if (backgroundType === 'color') {
+                    // Fill with the selected background color
+                    tempCtx.fillStyle = backgroundColor;
+                    tempCtx.fillRect(0, 0, widthInPixels, heightInPixels);
+                    
+                    // Draw the image on top
+                    tempCtx.drawImage(sourceCanvas, 0, 0, widthInPixels, heightInPixels);
+                } else if (backgroundType === 'remove') {
+                    // For background removal, we'll simulate it by creating a transparent background
+                    // In a real implementation, you would use a proper background removal algorithm
+                    tempCtx.clearRect(0, 0, widthInPixels, heightInPixels);
+                    
+                    // Draw the image
+                    tempCtx.drawImage(sourceCanvas, 0, 0, widthInPixels, heightInPixels);
+                    
+                    // Simulate background removal by making the background transparent
+                    // This is a simplified approach - in reality, you'd use a proper segmentation algorithm
+                    const imageData = tempCtx.getImageData(0, 0, widthInPixels, heightInPixels);
+                    const data = imageData.data;
+                    
+                    // Simple threshold-based background removal (very basic simulation)
+                    // In a real app, you would use a proper AI-based background removal
+                    for (let i = 0; i < data.length; i += 4) {
+                        // Simple check for light-colored pixels (simulating background)
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        
+                        // If the pixel is light-colored, make it transparent
+                        if (r > 200 && g > 200 && b > 200) {
+                            data[i + 3] = 0; // Set alpha to 0 (transparent)
+                        }
+                    }
+                    
+                    tempCtx.putImageData(imageData, 0, 0);
+                }
+                
+                // Store the processed image data
+                processedImageData = tempCanvas.toDataURL('image/png');
+                
+                // Hide processing overlay
+                setTimeout(() => {
+                    showProcessing(false);
+                    resolve();
+                }, 1000);
+            });
         }
         
         function selectDownloadType(type) {
@@ -1595,8 +1740,8 @@
                 previewCanvas.width = 400;
                 previewCanvas.height = 500;
             } else if (downloadType === 'a4') {
-                previewCanvas.width = 595;
-                previewCanvas.height = 842;
+                previewCanvas.width = 595; // A4 width in pixels at 72 DPI
+                previewCanvas.height = 842; // A4 height in pixels at 72 DPI
             } else if (downloadType === 'halfa4') {
                 previewCanvas.width = 595;
                 previewCanvas.height = 421;
@@ -1610,76 +1755,91 @@
             previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
             
             // Get photo dimensions
-            if (selectedCountry) {
+            if (selectedCountry && processedImageData) {
                 const country = countryData[selectedCountry];
                 const aspectRatio = country.dimensions.width / country.dimensions.height;
                 
-                let photoWidth, photoHeight;
-                if (downloadType === 'single') {
-                    photoWidth = 300;
-                    photoHeight = photoWidth / aspectRatio;
-                } else {
-                    // Calculate for sheet layout
-                    let rows, cols;
-                    if (downloadType === 'a4') {
-                        rows = 2;
-                        cols = 4;
-                    } else if (downloadType === 'halfa4') {
-                        rows = 2;
-                        cols = 2;
-                    } else {
-                        rows = parseInt(document.getElementById('layoutRows').value);
-                        cols = parseInt(document.getElementById('layoutCols').value);
-                    }
-                    
-                    const margin = 20;
-                    const spacing = 10;
-                    photoWidth = (previewCanvas.width - 2 * margin - (cols - 1) * spacing) / cols;
-                    photoHeight = photoWidth / aspectRatio;
-                    
-                    // Draw multiple photos
-                    for (let row = 0; row < rows; row++) {
-                        for (let col = 0; col < cols; col++) {
-                            const x = margin + col * (photoWidth + spacing);
-                            const y = margin + row * (photoHeight + spacing);
-                            
-                            // Draw photo placeholder
-                            previewCtx.fillStyle = '#e2e8f0';
-                            previewCtx.fillRect(x, y, photoWidth, photoHeight);
-                            
-                            // Draw border
-                            previewCtx.strokeStyle = '#cbd5e1';
+                // Load the processed image
+                const img = new Image();
+                img.onload = function() {
+                    let photoWidth, photoHeight;
+                    if (downloadType === 'single') {
+                        photoWidth = 300;
+                        photoHeight = photoWidth / aspectRatio;
+                        
+                        // Draw single photo
+                        const x = (previewCanvas.width - photoWidth) / 2;
+                        const y = (previewCanvas.height - photoHeight) / 2;
+                        
+                        previewCtx.drawImage(img, x, y, photoWidth, photoHeight);
+                        
+                        // Add border if background is removed
+                        if (backgroundType === 'remove') {
+                            previewCtx.strokeStyle = '#e2e8f0';
                             previewCtx.lineWidth = 1;
                             previewCtx.strokeRect(x, y, photoWidth, photoHeight);
                         }
+                        
+                        // Add text
+                        previewCtx.fillStyle = '#64748b';
+                        previewCtx.font = '16px Inter';
+                        previewCtx.textAlign = 'center';
+                        previewCtx.fillText(`${country.name} Passport Photo`, previewCanvas.width / 2, 40);
+                        previewCtx.fillText(`${country.size}`, previewCanvas.width / 2, 65);
+                    } else {
+                        // Calculate for sheet layout
+                        let rows, cols;
+                        if (downloadType === 'a4') {
+                            rows = 2;
+                            cols = 4;
+                        } else if (downloadType === 'halfa4') {
+                            rows = 2;
+                            cols = 2;
+                        } else {
+                            rows = parseInt(document.getElementById('layoutRows').value);
+                            cols = parseInt(document.getElementById('layoutCols').value);
+                        }
+                        
+                        const margin = 20;
+                        const spacing = 10;
+                        photoWidth = (previewCanvas.width - 2 * margin - (cols - 1) * spacing) / cols;
+                        photoHeight = photoWidth / aspectRatio;
+                        
+                        // Draw multiple photos
+                        for (let row = 0; row < rows; row++) {
+                            for (let col = 0; col < cols; col++) {
+                                const x = margin + col * (photoWidth + spacing);
+                                const y = margin + row * (photoHeight + spacing);
+                                
+                                // Draw photo
+                                previewCtx.drawImage(img, x, y, photoWidth, photoHeight);
+                                
+                                // Add border if background is removed
+                                if (backgroundType === 'remove') {
+                                    previewCtx.strokeStyle = '#e2e8f0';
+                                    previewCtx.lineWidth = 1;
+                                    previewCtx.strokeRect(x, y, photoWidth, photoHeight);
+                                }
+                            }
+                        }
+                        
+                        // Add text
+                        previewCtx.fillStyle = '#64748b';
+                        previewCtx.font = '14px Inter';
+                        previewCtx.textAlign = 'center';
+                        previewCtx.fillText(`${country.name} Passport Photos`, previewCanvas.width / 2, 20);
                     }
-                    
-                    // Add text
-                    previewCtx.fillStyle = '#64748b';
-                    previewCtx.font = '14px Inter';
-                    previewCtx.textAlign = 'center';
-                    previewCtx.fillText(`${country.name} Passport Photos`, previewCanvas.width / 2, 20);
-                    
-                    return;
-                }
-                
-                // Draw single photo
-                const x = (previewCanvas.width - photoWidth) / 2;
-                const y = (previewCanvas.height - photoHeight) / 2;
-                
-                previewCtx.fillStyle = '#e2e8f0';
-                previewCtx.fillRect(x, y, photoWidth, photoHeight);
-                
-                // Add text
-                previewCtx.fillStyle = '#64748b';
-                previewCtx.font = '16px Inter';
-                previewCtx.textAlign = 'center';
-                previewCtx.fillText(`${country.name} Passport Photo`, previewCanvas.width / 2, 40);
-                previewCtx.fillText(`${country.size}`, previewCanvas.width / 2, 65);
+                };
+                img.src = processedImageData;
             }
         }
         
         function downloadImage() {
+            if (!processedImageData) {
+                showNotification('Please process your image first', 'error');
+                return;
+            }
+            
             const previewCanvas = document.getElementById('previewCanvas');
             const link = document.createElement('a');
             
@@ -1695,6 +1855,15 @@
             link.click();
             
             showNotification('Photo downloaded successfully!');
+        }
+        
+        function showProcessing(show) {
+            const overlay = document.getElementById('processingOverlay');
+            if (show) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
+            }
         }
         
         function showNotification(message, type = 'success') {
