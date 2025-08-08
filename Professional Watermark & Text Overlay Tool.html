@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Watermark & Text Overlay Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #1a2a6c;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+        }
+        
+        .file-input-label {
+            display: block;
+            width: 200px;
+            height: 50px;
+            line-height: 50px;
+            background: #4169e1;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .file-input-label:hover {
+            background: #3150c4;
+        }
+        
+        .main-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .controls-panel {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+        }
+        
+        .controls-panel h2 {
+            margin-bottom: 20px;
+            color: #1a2a6c;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .control-group input, .control-group select, .control-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .control-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-input {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .color-text {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .position-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .position-btn {
+            padding: 10px;
+            background: #e9ecef;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .position-btn:hover {
+            background: #dee2e6;
+        }
+        
+        .position-btn.active {
+            background: #4169e1;
+            color: white;
+        }
+        
+        .preview-section {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .preview-section h2 {
+            margin-bottom: 15px;
+            color: #1a2a6c;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .image-preview {
+            background: #f1f2f6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .image-preview.has-image {
+            min-height: 350px;
+        }
+        
+        .image-preview h3 {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .image-preview canvas {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: crosshair;
+        }
+        
+        .image-preview.has-image canvas {
+            max-height: 400px;
+        }
+        
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .download-btn {
+            background: #ff6347;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: none;
+        }
+        
+        .download-btn:hover {
+            background: #e5533b;
+        }
+        
+        .download-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .instructions {
+            background: #eef7ff;
+            border-left: 4px solid #4169e1;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #1a2a6c;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        .apply-btn {
+            background: #32cd32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .apply-btn:hover {
+            background: #2fb82f;
+        }
+        
+        .apply-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .main-section {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .position-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Professional Watermark & Text Overlay Tool</h1>
+            <p class="subtitle">Add custom text watermarks to your images with precision</p>
+        </header>
+        
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <ol>
+                <li>Upload an image using the button below</li>
+                <li>Enter your watermark text and customize its appearance</li>
+                <li>Choose a position or click on the image to place the watermark</li>
+                <li>Click "Apply Watermark" to see the result</li>
+                <li>Download your watermarked image when ready</li>
+            </ol>
+        </div>
+        
+        <section class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="imageUpload" accept="image/*">
+                <label for="imageUpload" class="file-input-label">Choose Image</label>
+            </div>
+        </section>
+        
+        <section class="main-section">
+            <div class="controls-panel">
+                <h2>Watermark Settings</h2>
+                
+                <div class="control-group">
+                    <label for="watermarkText">Watermark Text:</label>
+                    <textarea id="watermarkText" placeholder="Enter your watermark text...">© Your Watermark</textarea>
+                </div>
+                
+                <div class="control-group">
+                    <label for="fontSize">Font Size:</label>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Size:</span>
+                            <span id="fontSizeValue">30px</span>
+                        </div>
+                        <input type="range" id="fontSize" class="slider" min="10" max="100" value="30">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="fontFamily">Font Family:</label>
+                    <select id="fontFamily">
+                        <option value="Arial">Arial</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Impact">Impact</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Font Color:</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="fontColor" class="color-input" value="#ffffff">
+                        <input type="text" id="fontColorText" class="color-text" value="#ffffff">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="opacity">Opacity:</label>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Opacity:</span>
+                            <span id="opacityValue">70%</span>
+                        </div>
+                        <input type="range" id="opacity" class="slider" min="0" max="100" value="70">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="rotation">Rotation:</label>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Rotation:</span>
+                            <span id="rotationValue">0°</span>
+                        </div>
+                        <input type="range" id="rotation" class="slider" min="-180" max="180" value="0">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Position:</label>
+                    <div class="position-buttons">
+                        <div class="position-btn" data-position="top-left">Top Left</div>
+                        <div class="position-btn" data-position="top-center">Top Center</div>
+                        <div class="position-btn" data-position="top-right">Top Right</div>
+                        <div class="position-btn" data-position="middle-left">Middle Left</div>
+                        <div class="position-btn active" data-position="center">Center</div>
+                        <div class="position-btn" data-position="middle-right">Middle Right</div>
+                        <div class="position-btn" data-position="bottom-left">Bottom Left</div>
+                        <div class="position-btn" data-position="bottom-center">Bottom Center</div>
+                        <div class="position-btn" data-position="bottom-right">Bottom Right</div>
+                    </div>
+                </div>
+                
+                <button id="applyBtn" class="apply-btn" disabled>Apply Watermark</button>
+            </div>
+            
+            <div class="preview-section">
+                <h2>Image Preview</h2>
+                <div class="preview-container">
+                    <div class="image-preview" id="originalPreview">
+                        <h3>Original Image</h3>
+                        <canvas id="originalCanvas"></canvas>
+                    </div>
+                    
+                    <div class="image-preview" id="watermarkedPreview">
+                        <h3>Watermarked Image</h3>
+                        <canvas id="watermarkedCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="download-section">
+            <button id="downloadBtn" class="download-btn">Download Watermarked Image</button>
+        </section>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const imageUpload = document.getElementById('imageUpload');
+            const originalCanvas = document.getElementById('originalCanvas');
+            const watermarkedCanvas = document.getElementById('watermarkedCanvas');
+            const originalPreview = document.getElementById('originalPreview');
+            const watermarkedPreview = document.getElementById('watermarkedPreview');
+            const watermarkText = document.getElementById('watermarkText');
+            const fontSize = document.getElementById('fontSize');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            const fontFamily = document.getElementById('fontFamily');
+            const fontColor = document.getElementById('fontColor');
+            const fontColorText = document.getElementById('fontColorText');
+            const opacity = document.getElementById('opacity');
+            const opacityValue = document.getElementById('opacityValue');
+            const rotation = document.getElementById('rotation');
+            const rotationValue = document.getElementById('rotationValue');
+            const positionBtns = document.querySelectorAll('.position-btn');
+            const applyBtn = document.getElementById('applyBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const notification = document.getElementById('notification');
+            
+            // Canvas contexts
+            const originalCtx = originalCanvas.getContext('2d');
+            const watermarkedCtx = watermarkedCanvas.getContext('2d');
+            
+            // State variables
+            let originalImage = null;
+            let hasImage = false;
+            let watermarkPosition = { x: 0.5, y: 0.5 }; // Default to center (relative coordinates)
+            let isDragging = false;
+            
+            // Show notification
+            function showNotification(message, duration = 3000) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, duration);
+            }
+            
+            // Handle image upload
+            imageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (event) => {
+                        originalImage = new Image();
+                        originalImage.onload = () => {
+                            displayOriginalImage();
+                            hasImage = true;
+                            applyBtn.disabled = false;
+                            showNotification('Image uploaded successfully!');
+                            
+                            // Add class to preview containers to make them bigger
+                            originalPreview.classList.add('has-image');
+                            watermarkedPreview.classList.add('has-image');
+                        };
+                        originalImage.src = event.target.result;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Display original image
+            function displayOriginalImage() {
+                // Calculate canvas size to fit the image while maintaining aspect ratio
+                const maxWidth = 500;
+                const maxHeight = 400;
+                let width = originalImage.width;
+                let height = originalImage.height;
+                
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+                
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+                
+                originalCanvas.width = width;
+                originalCanvas.height = height;
+                
+                // Draw the image
+                originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+                originalCtx.drawImage(originalImage, 0, 0, width, height);
+                
+                // Initialize watermarked canvas with the same image
+                watermarkedCanvas.width = width;
+                watermarkedCanvas.height = height;
+                watermarkedCtx.clearRect(0, 0, watermarkedCanvas.width, watermarkedCanvas.height);
+                watermarkedCtx.drawImage(originalImage, 0, 0, width, height);
+            }
+            
+            // Update font size value
+            fontSize.addEventListener('input', (e) => {
+                fontSizeValue.textContent = `${e.target.value}px`;
+            });
+            
+            // Update opacity value
+            opacity.addEventListener('input', (e) => {
+                opacityValue.textContent = `${e.target.value}%`;
+            });
+            
+            // Update rotation value
+            rotation.addEventListener('input', (e) => {
+                rotationValue.textContent = `${e.target.value}°`;
+            });
+            
+            // Sync color inputs
+            fontColor.addEventListener('input', (e) => {
+                fontColorText.value = e.target.value;
+            });
+            
+            fontColorText.addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    fontColor.value = e.target.value;
+                }
+            });
+            
+            // Handle position buttons
+            positionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    positionBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const position = btn.dataset.position;
+                    switch(position) {
+                        case 'top-left':
+                            watermarkPosition = { x: 0.1, y: 0.1 };
+                            break;
+                        case 'top-center':
+                            watermarkPosition = { x: 0.5, y: 0.1 };
+                            break;
+                        case 'top-right':
+                            watermarkPosition = { x: 0.9, y: 0.1 };
+                            break;
+                        case 'middle-left':
+                            watermarkPosition = { x: 0.1, y: 0.5 };
+                            break;
+                        case 'center':
+                            watermarkPosition = { x: 0.5, y: 0.5 };
+                            break;
+                        case 'middle-right':
+                            watermarkPosition = { x: 0.9, y: 0.5 };
+                            break;
+                        case 'bottom-left':
+                            watermarkPosition = { x: 0.1, y: 0.9 };
+                            break;
+                        case 'bottom-center':
+                            watermarkPosition = { x: 0.5, y: 0.9 };
+                            break;
+                        case 'bottom-right':
+                            watermarkPosition = { x: 0.9, y: 0.9 };
+                            break;
+                    }
+                });
+            });
+            
+            // Handle canvas click for custom positioning
+            watermarkedCanvas.addEventListener('click', (e) => {
+                if (!hasImage) return;
+                
+                const rect = watermarkedCanvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                
+                watermarkPosition = { x, y };
+                
+                // Deselect all position buttons
+                positionBtns.forEach(b => b.classList.remove('active'));
+                
+                // Apply watermark with new position
+                applyWatermark();
+            });
+            
+            // Apply watermark
+            function applyWatermark() {
+                if (!hasImage) return;
+                
+                // Clear and redraw the original image
+                watermarkedCtx.clearRect(0, 0, watermarkedCanvas.width, watermarkedCanvas.height);
+                watermarkedCtx.drawImage(originalImage, 0, 0, watermarkedCanvas.width, watermarkedCanvas.height);
+                
+                // Get watermark settings
+                const text = watermarkText.value;
+                const size = parseInt(fontSize.value);
+                const family = fontFamily.value;
+                const color = fontColor.value;
+                const alpha = parseInt(opacity.value) / 100;
+                const angle = parseInt(rotation.value) * Math.PI / 180;
+                
+                // Set font
+                watermarkedCtx.font = `${size}px ${family}`;
+                watermarkedCtx.fillStyle = color;
+                watermarkedCtx.globalAlpha = alpha;
+                watermarkedCtx.textAlign = 'center';
+                watermarkedCtx.textBaseline = 'middle';
+                
+                // Calculate position
+                const x = watermarkPosition.x * watermarkedCanvas.width;
+                const y = watermarkPosition.y * watermarkedCanvas.height;
+                
+                // Save context, apply rotation, draw text, restore context
+                watermarkedCtx.save();
+                watermarkedCtx.translate(x, y);
+                watermarkedCtx.rotate(angle);
+                watermarkedCtx.fillText(text, 0, 0);
+                watermarkedCtx.restore();
+                
+                // Reset global alpha
+                watermarkedCtx.globalAlpha = 1.0;
+                
+                // Show download button
+                downloadBtn.style.display = 'inline-block';
+            }
+            
+            // Apply button click
+            applyBtn.addEventListener('click', () => {
+                if (!hasImage) return;
+                
+                applyWatermark();
+                showNotification('Watermark applied successfully!');
+            });
+            
+            // Download watermarked image
+            downloadBtn.addEventListener('click', () => {
+                if (!hasImage) return;
+                
+                watermarkedCanvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'watermarked-image.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification('Image downloaded successfully!');
+                }, 'image/png');
+            });
+        });
+    </script>
+</body>
+</html>
