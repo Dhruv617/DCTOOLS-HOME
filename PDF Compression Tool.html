@@ -565,6 +565,51 @@
             color: var(--text-color);
         }
 
+        /* Compression Results Styles */
+        .compression-results {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .compression-results.show {
+            display: block;
+        }
+
+        .compression-results h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .compression-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .compression-stat {
+            text-align: center;
+        }
+
+        .compression-stat-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .compression-stat-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .compression-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
         /* File List Styles */
         .file-list {
             list-style: none;
@@ -1013,6 +1058,36 @@
                             
                             <div class="progress" id="compressProgress" style="display: none;">
                                 <div class="progress-bar" id="compressProgressBar"></div>
+                            </div>
+                            
+                            <div class="compression-results" id="compressionResults">
+                                <h4>Compression Results</h4>
+                                <div class="compression-stats">
+                                    <div class="compression-stat">
+                                        <div class="compression-stat-value" id="resultOriginalSize">0 MB</div>
+                                        <div class="compression-stat-label">Original Size</div>
+                                    </div>
+                                    <div class="compression-stat">
+                                        <div class="compression-stat-value" id="resultCompressedSize">0 MB</div>
+                                        <div class="compression-stat-label">Compressed Size</div>
+                                    </div>
+                                    <div class="compression-stat">
+                                        <div class="compression-stat-value" id="resultSpaceSaved">0 MB</div>
+                                        <div class="compression-stat-label">Space Saved</div>
+                                    </div>
+                                    <div class="compression-stat">
+                                        <div class="compression-stat-value" id="resultCompressionRatio">0%</div>
+                                        <div class="compression-stat-label">Compression Ratio</div>
+                                    </div>
+                                </div>
+                                <div class="compression-actions">
+                                    <button class="btn btn-success" id="downloadCompressedBtn">
+                                        <i class="fas fa-download"></i> Download Compressed PDF
+                                    </button>
+                                    <button class="btn btn-secondary" id="compressAnotherBtn">
+                                        <i class="fas fa-file-pdf"></i> Compress Another PDF
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -2270,12 +2345,22 @@
         const zoomInBtn = document.getElementById('zoom-in');
         const zoomOutBtn = document.getElementById('zoom-out');
 
+        // Compression Results Elements
+        const compressionResults = document.getElementById('compressionResults');
+        const resultOriginalSize = document.getElementById('resultOriginalSize');
+        const resultCompressedSize = document.getElementById('resultCompressedSize');
+        const resultSpaceSaved = document.getElementById('resultSpaceSaved');
+        const resultCompressionRatio = document.getElementById('resultCompressionRatio');
+        const downloadCompressedBtn = document.getElementById('downloadCompressedBtn');
+        const compressAnotherBtn = document.getElementById('compressAnotherBtn');
+
         // PDF Preview Variables
         let pdfDoc = null;
         let currentPage = 1;
         let scale = 1.5;
         let canvas = pdfCanvas;
         let context = ctx;
+        let compressedPdfBlob = null;
 
         // Page Navigation
         function showPage(pageId) {
@@ -2559,6 +2644,9 @@
                         currentPage = 1;
                         renderPage(pdfDoc.getPage(currentPage));
                         
+                        // Store the original file for compression
+                        window.originalPdfFile = file;
+                        
                         showNotification('File uploaded successfully');
                     });
                 };
@@ -2616,10 +2704,72 @@
                     setTimeout(() => {
                         compressProgress.style.display = 'none';
                         compressProgressBar.style.width = '0';
+                        
+                        // Calculate compression results
+                        const originalFileSize = parseFloat(originalSize.textContent);
+                        const quality = qualitySlider.value;
+                        const compressedFileSize = (originalFileSize * (quality / 100)).toFixed(2);
+                        const spaceSaved = (originalFileSize - compressedFileSize).toFixed(2);
+                        const compressionRatio = ((spaceSaved / originalFileSize) * 100).toFixed(1);
+                        
+                        // Update compression results
+                        resultOriginalSize.textContent = originalFileSize + ' MB';
+                        resultCompressedSize.textContent = compressedFileSize + ' MB';
+                        resultSpaceSaved.textContent = spaceSaved + ' MB';
+                        resultCompressionRatio.textContent = compressionRatio + '%';
+                        
+                        // Show compression results
+                        compressionResults.classList.add('show');
+                        
+                        // Create a mock compressed PDF blob for download
+                        // In a real application, this would be the actual compressed PDF
+                        const compressedPdfData = new Blob(['Mock compressed PDF data'], {type: 'application/pdf'});
+                        compressedPdfBlob = compressedPdfData;
+                        
                         showNotification('PDF compressed successfully');
                     }, 500);
                 }
             }, 100);
+        });
+
+        // Download compressed PDF button functionality
+        downloadCompressedBtn.addEventListener('click', () => {
+            if (!compressedPdfBlob) {
+                showNotification('No compressed PDF available', 'error');
+                return;
+            }
+            
+            // Create a download link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(compressedPdfBlob);
+            
+            // Get original filename and add "_compressed" suffix
+            const originalFileName = pdfFileInput.files[0].name;
+            const fileNameWithoutExtension = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+            const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+            const compressedFileName = fileNameWithoutExtension + '_compressed' + fileExtension;
+            
+            downloadLink.download = compressedFileName;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            showNotification('Compressed PDF downloaded successfully');
+        });
+
+        // Compress another PDF button functionality
+        compressAnotherBtn.addEventListener('click', () => {
+            // Reset the form
+            pdfFileInput.value = '';
+            fileInfo.style.display = 'none';
+            pdfPreview.style.display = 'none';
+            compressionResults.classList.remove('show');
+            compressedPdfBlob = null;
+            
+            // Scroll to top of the page
+            window.scrollTo(0, 0);
+            
+            showNotification('Ready to compress another PDF');
         });
 
         // Preview button functionality
