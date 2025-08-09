@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPG to Excel Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f8fafc;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            background-color: #eef7ff;
+        }
+        
+        .upload-area.dragover {
+            background-color: #e1f0ff;
+            border-color: #2980b9;
+        }
+        
+        .upload-area p {
+            margin: 0;
+            color: #7f8c8d;
+        }
+        
+        .upload-area strong {
+            color: #3498db;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .preview-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .primary-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .secondary-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .progress-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .result-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .table-preview {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .table-preview th, .table-preview td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .table-preview th {
+            background-color: #f2f2f2;
+        }
+        
+        .notification {
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .options-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .option-group {
+            margin-bottom: 15px;
+        }
+        
+        .option-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        select, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JPG to Excel Converter</h1>
+        
+        <div class="notification success" id="successNotification"></div>
+        <div class="notification error" id="errorNotification"></div>
+        
+        <div class="upload-area" id="uploadArea">
+            <p><strong>Click to upload</strong> or drag and drop your JPG image here</p>
+            <p>Supported formats: JPG, PNG, BMP, GIF</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <img id="previewImage" class="preview-image" alt="Preview">
+            <div class="action-buttons">
+                <button id="extractBtn" class="primary-btn">Extract Text & Tables</button>
+                <button id="resetBtn" class="secondary-btn">Reset</button>
+            </div>
+        </div>
+        
+        <div class="options-container">
+            <div class="option-group">
+                <label for="languageSelect">OCR Language:</label>
+                <select id="languageSelect">
+                    <option value="eng">English</option>
+                    <option value="hin">Hindi</option>
+                    <option value="guj">Gujarati</option>
+                    <option value="spa">Spanish</option>
+                    <option value="fra">French</option>
+                    <option value="deu">German</option>
+                    <option value="chi_sim">Chinese (Simplified)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Processing: 0%</div>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <h3>Extracted Data Preview:</h3>
+            <div id="tableContainer"></div>
+            <div class="action-buttons">
+                <button id="downloadExcelBtn" class="primary-btn">Download as Excel (.xlsx)</button>
+                <button id="downloadCsvBtn" class="primary-btn">Download as CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewImage = document.getElementById('previewImage');
+            const extractBtn = document.getElementById('extractBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultContainer = document.getElementById('resultContainer');
+            const tableContainer = document.getElementById('tableContainer');
+            const downloadExcelBtn = document.getElementById('downloadExcelBtn');
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+            const languageSelect = document.getElementById('languageSelect');
+            const successNotification = document.getElementById('successNotification');
+            const errorNotification = document.getElementById('errorNotification');
+            
+            let extractedData = [];
+            
+            // Upload area click event
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Drag and drop events
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // File input change event
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+            
+            // Extract button click event
+            extractBtn.addEventListener('click', () => {
+                extractTextFromImage();
+            });
+            
+            // Reset button click event
+            resetBtn.addEventListener('click', () => {
+                resetApp();
+            });
+            
+            // Download Excel button click event
+            downloadExcelBtn.addEventListener('click', () => {
+                downloadExcel();
+            });
+            
+            // Download CSV button click event
+            downloadCsvBtn.addEventListener('click', () => {
+                downloadCSV();
+            });
+            
+            // Handle file upload
+            function handleFile(file) {
+                if (!file.type.match('image.*')) {
+                    showNotification('Please upload an image file.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    resultContainer.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // Extract text from image using OCR
+            function extractTextFromImage() {
+                progressContainer.style.display = 'block';
+                resultContainer.style.display = 'none';
+                
+                const selectedLanguage = languageSelect.value;
+                
+                Tesseract.recognize(
+                    previewImage.src,
+                    selectedLanguage,
+                    {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const progress = Math.round(m.progress * 100);
+                                progressBar.style.width = `${progress}%`;
+                                progressText.textContent = `Processing: ${progress}%`;
+                            }
+                        }
+                    }
+                ).then(({ data: { text, words, lines } }) => {
+                    progressContainer.style.display = 'none';
+                    
+                    // Process the extracted text to detect tables
+                    extractedData = processTextForTables(text, lines);
+                    
+                    // Display the extracted data in a table
+                    displayExtractedData(extractedData);
+                    
+                    showNotification('Text and tables extracted successfully!', 'success');
+                }).catch(err => {
+                    progressContainer.style.display = 'none';
+                    showNotification('Error extracting text: ' + err.message, 'error');
+                    console.error(err);
+                });
+            }
+            
+            // Process extracted text to detect tables
+            function processTextForTables(text, lines) {
+                // Simple table detection algorithm
+                // In a real-world scenario, you would use more sophisticated algorithms
+                
+                // Split text by lines
+                const allLines = text.split('\n').filter(line => line.trim() !== '');
+                
+                // Try to detect if the text represents a table
+                // This is a simplified approach - real table detection is more complex
+                let tableData = [];
+                let headers = [];
+                let rows = [];
+                
+                // Check if we have consistent spacing that might indicate columns
+                if (allLines.length > 1) {
+                    // Get the first line as potential header
+                    const firstLine = allLines[0];
+                    headers = firstLine.split(/\s{2,}/).map(header => header.trim());
+                    
+                    // Process remaining lines as rows
+                    for (let i = 1; i < allLines.length; i++) {
+                        const row = allLines[i].split(/\s{2,}/).map(cell => cell.trim());
+                        if (row.length === headers.length) {
+                            rows.push(row);
+                        }
+                    }
+                    
+                    // If we found a valid table structure
+                    if (headers.length > 1 && rows.length > 0) {
+                        tableData = [headers, ...rows];
+                    } else {
+                        // Fallback: treat each line as a separate row with a single column
+                        tableData = allLines.map(line => [line.trim()]);
+                    }
+                } else {
+                    // Just a single line of text
+                    tableData = [[text.trim()]];
+                }
+                
+                return tableData;
+            }
+            
+            // Display extracted data in a table
+            function displayExtractedData(data) {
+                let tableHTML = '<table class="table-preview">';
+                
+                for (let i = 0; i < data.length; i++) {
+                    const row = data[i];
+                    tableHTML += '<tr>';
+                    
+                    for (let j = 0; j < row.length; j++) {
+                        const cell = row[j];
+                        if (i === 0) {
+                            tableHTML += `<th>${cell}</th>`;
+                        } else {
+                            tableHTML += `<td>${cell}</td>`;
+                        }
+                    }
+                    
+                    tableHTML += '</tr>';
+                }
+                
+                tableHTML += '</table>';
+                tableContainer.innerHTML = tableHTML;
+                resultContainer.style.display = 'block';
+            }
+            
+            // Download as Excel file
+            function downloadExcel() {
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(extractedData);
+                XLSX.utils.book_append_sheet(wb, ws, "Extracted Data");
+                
+                XLSX.writeFile(wb, "extracted_data.xlsx");
+                showNotification('Excel file downloaded successfully!', 'success');
+            }
+            
+            // Download as CSV file
+            function downloadCSV() {
+                const csvContent = "data:text/csv;charset=utf-8," 
+                    + extractedData.map(row => 
+                        row.map(cell => `"${cell}"`).join(",")
+                    ).join("\n");
+                
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "extracted_data.csv");
+                document.body.appendChild(link);
+                
+                link.click();
+                document.body.removeChild(link);
+                showNotification('CSV file downloaded successfully!', 'success');
+            }
+            
+            // Reset the application
+            function resetApp() {
+                fileInput.value = '';
+                previewContainer.style.display = 'none';
+                progressContainer.style.display = 'none';
+                resultContainer.style.display = 'none';
+                extractedData = [];
+                hideNotifications();
+            }
+            
+            // Show notification
+            function showNotification(message, type) {
+                hideNotifications();
+                
+                if (type === 'success') {
+                    successNotification.textContent = message;
+                    successNotification.style.display = 'block';
+                } else {
+                    errorNotification.textContent = message;
+                    errorNotification.style.display = 'block';
+                }
+                
+                // Auto-hide after 5 seconds
+                setTimeout(hideNotifications, 5000);
+            }
+            
+            // Hide notifications
+            function hideNotifications() {
+                successNotification.style.display = 'none';
+                errorNotification.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
