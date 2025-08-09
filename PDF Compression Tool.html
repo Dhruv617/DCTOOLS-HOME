@@ -610,6 +610,47 @@
             justify-content: center;
         }
 
+        /* Security Results Styles */
+        .security-results {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .security-results.show {
+            display: block;
+        }
+
+        .security-results h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .security-applied {
+            margin-bottom: 15px;
+        }
+
+        .security-applied h5 {
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .security-applied ul {
+            padding-left: 20px;
+        }
+
+        .security-applied li {
+            margin-bottom: 5px;
+        }
+
+        .security-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
         /* File List Styles */
         .file-list {
             list-style: none;
@@ -660,6 +701,11 @@
         .cloud-service:hover {
             border-color: var(--primary-color);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .cloud-service.active {
+            border-color: var(--success-color);
+            background-color: rgba(76, 175, 80, 0.05);
         }
 
         .cloud-icon {
@@ -952,34 +998,8 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Document1.pdf</td>
-                                    <td>2.4 MB</td>
-                                    <td>2023-06-15</td>
-                                    <td>
-                                        <button class="btn btn-secondary"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-secondary"><i class="fas fa-download"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Report.pdf</td>
-                                    <td>1.8 MB</td>
-                                    <td>2023-06-14</td>
-                                    <td>
-                                        <button class="btn btn-secondary"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-secondary"><i class="fas fa-download"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Presentation.pdf</td>
-                                    <td>5.2 MB</td>
-                                    <td>2023-06-12</td>
-                                    <td>
-                                        <button class="btn btn-secondary"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-secondary"><i class="fas fa-download"></i></button>
-                                    </td>
-                                </tr>
+                            <tbody id="recentFilesTableBody">
+                                <!-- Recent files will be populated here -->
                             </tbody>
                         </table>
                     </div>
@@ -1644,7 +1664,20 @@
                             <div class="progress-bar" id="securityProgressBar"></div>
                         </div>
                         
-                        <div id="securityStatus"></div>
+                        <div class="security-results" id="securityResults">
+                            <h4>Security Applied Successfully</h4>
+                            <div class="security-applied" id="securityAppliedList">
+                                <!-- Security features applied will be listed here -->
+                            </div>
+                            <div class="security-actions">
+                                <button class="btn btn-success" id="downloadSecuredPdfBtn">
+                                    <i class="fas fa-download"></i> Download Secured PDF
+                                </button>
+                                <button class="btn btn-secondary" id="secureAnotherPdfBtn">
+                                    <i class="fas fa-file-pdf"></i> Secure Another PDF
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1666,18 +1699,18 @@
                     <div class="cloud-tab-content active" id="servicesCloudTab">
                         <h4>Connect to Cloud Storage Services</h4>
                         
-                        <div class="cloud-service">
+                        <div class="cloud-service active" id="googleDriveService">
                             <div class="cloud-icon" style="background-color: #4285F4;">
                                 <i class="fab fa-google-drive"></i>
                             </div>
                             <div class="cloud-info">
                                 <div class="cloud-name">Google Drive</div>
-                                <div class="cloud-status" id="googleDriveStatus">Not Connected</div>
+                                <div class="cloud-status" id="googleDriveStatus">Connected</div>
                             </div>
-                            <button class="btn btn-primary cloud-action" id="connectGoogleDrive">Connect</button>
+                            <button class="btn btn-secondary cloud-action" id="connectGoogleDrive">Disconnect</button>
                         </div>
                         
-                        <div class="cloud-service">
+                        <div class="cloud-service" id="dropboxService">
                             <div class="cloud-icon" style="background-color: #0061FF;">
                                 <i class="fab fa-dropbox"></i>
                             </div>
@@ -1688,7 +1721,7 @@
                             <button class="btn btn-primary cloud-action" id="connectDropbox">Connect</button>
                         </div>
                         
-                        <div class="cloud-service">
+                        <div class="cloud-service" id="oneDriveService">
                             <div class="cloud-icon" style="background-color: #0078D4;">
                                 <i class="fab fa-microsoft"></i>
                             </div>
@@ -1699,7 +1732,7 @@
                             <button class="btn btn-primary cloud-action" id="connectOneDrive">Connect</button>
                         </div>
                         
-                        <div class="cloud-service">
+                        <div class="cloud-service" id="awsService">
                             <div class="cloud-icon" style="background-color: #FF9900;">
                                 <i class="fab fa-aws"></i>
                             </div>
@@ -1710,7 +1743,7 @@
                             <button class="btn btn-primary cloud-action" id="connectAWS">Connect</button>
                         </div>
                         
-                        <div class="cloud-service">
+                        <div class="cloud-service" id="azureService">
                             <div class="cloud-icon" style="background-color: #0078D4;">
                                 <i class="fab fa-microsoft"></i>
                             </div>
@@ -2354,6 +2387,25 @@
         const downloadCompressedBtn = document.getElementById('downloadCompressedBtn');
         const compressAnotherBtn = document.getElementById('compressAnotherBtn');
 
+        // Security Elements
+        const securityPdfFileInput = document.getElementById('securityPdfFile');
+        const securityOptions = document.getElementById('securityOptions');
+        const securityProgress = document.getElementById('securityProgress');
+        const securityProgressBar = document.getElementById('securityProgressBar');
+        const securityStatus = document.getElementById('securityStatus');
+        const securityResults = document.getElementById('securityResults');
+        const securityAppliedList = document.getElementById('securityAppliedList');
+        const downloadSecuredPdfBtn = document.getElementById('downloadSecuredPdfBtn');
+        const secureAnotherPdfBtn = document.getElementById('secureAnotherPdfBtn');
+
+        // Cloud Elements
+        const googleDriveService = document.getElementById('googleDriveService');
+        const googleDriveStatus = document.getElementById('googleDriveStatus');
+        const connectGoogleDrive = document.getElementById('connectGoogleDrive');
+
+        // Recent Files Table
+        const recentFilesTableBody = document.getElementById('recentFilesTableBody');
+
         // PDF Preview Variables
         let pdfDoc = null;
         let currentPage = 1;
@@ -2361,6 +2413,8 @@
         let canvas = pdfCanvas;
         let context = ctx;
         let compressedPdfBlob = null;
+        let securedPdfBlob = null;
+        let currentProcessedFile = null;
 
         // Page Navigation
         function showPage(pageId) {
@@ -2613,6 +2667,35 @@
             queueRenderPage(currentPage);
         }
 
+        // Update recent files table
+        function updateRecentFiles(fileName, fileSize, operation) {
+            const date = new Date().toLocaleDateString();
+            
+            // Clear existing rows
+            recentFilesTableBody.innerHTML = '';
+            
+            // Add the current file as the only row
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${fileName}</td>
+                <td>${fileSize} MB</td>
+                <td>${date}</td>
+                <td>
+                    <button class="btn btn-secondary"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-secondary"><i class="fas fa-download"></i></button>
+                </td>
+            `;
+            recentFilesTableBody.appendChild(row);
+            
+            // Update current processed file
+            currentProcessedFile = {
+                name: fileName,
+                size: fileSize,
+                date: date,
+                operation: operation
+            };
+        }
+
         // File upload functionality
         pdfFileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
@@ -2726,6 +2809,10 @@
                         const compressedPdfData = new Blob(['Mock compressed PDF data'], {type: 'application/pdf'});
                         compressedPdfBlob = compressedPdfData;
                         
+                        // Update recent files
+                        const fileName = pdfFileInput.files[0].name;
+                        updateRecentFiles(fileName, compressedFileSize, 'Compressed');
+                        
                         showNotification('PDF compressed successfully');
                     }, 500);
                 }
@@ -2787,92 +2874,7 @@
             }
         });
 
-        // Batch file upload functionality
-        const batchPdfFilesInput = document.getElementById('batchPdfFiles');
-        const batchFileInfo = document.getElementById('batchFileInfo');
-        const batchFileList = document.getElementById('batchFileList');
-
-        batchPdfFilesInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                // Show batch file info
-                batchFileInfo.style.display = 'block';
-                
-                // Clear previous files
-                batchFileList.innerHTML = '';
-                
-                // Add files to list
-                Array.from(e.target.files).forEach(file => {
-                    const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-                    const li = document.createElement('li');
-                    li.className = 'file-item';
-                    li.innerHTML = `
-                        <i class="fas fa-file-pdf file-icon"></i>
-                        <span class="file-name">${file.name}</span>
-                        <span class="file-size">${fileSize} MB</span>
-                        <div class="file-actions">
-                            <button class="btn btn-secondary"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                    batchFileList.appendChild(li);
-                });
-                
-                showNotification(`${e.target.files.length} files added to batch`);
-            }
-        });
-
-        // Batch password protection toggle
-        const batchProtect = document.getElementById('batchProtect');
-        const batchPasswordFields = document.getElementById('batchPasswordFields');
-
-        if (batchProtect) {
-            batchProtect.addEventListener('change', () => {
-                batchPasswordFields.style.display = batchProtect.checked ? 'block' : 'none';
-            });
-        }
-
-        // Batch process button
-        const batchProcessBtn = document.getElementById('batchProcessBtn');
-        const batchProgress = document.getElementById('batchProgress');
-        const batchProgressBar = document.getElementById('batchProgressBar');
-        const batchStatus = document.getElementById('batchStatus');
-
-        if (batchProcessBtn) {
-            batchProcessBtn.addEventListener('click', () => {
-                if (batchPdfFilesInput.files.length === 0) {
-                    showNotification('Please select PDF files first', 'error');
-                    return;
-                }
-                
-                // Show progress
-                batchProgress.style.display = 'block';
-                batchStatus.innerHTML = '<p>Processing files...</p>';
-                
-                // Simulate batch processing
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 2;
-                    batchProgressBar.style.width = progress + '%';
-                    
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        
-                        // Hide progress after completion
-                        setTimeout(() => {
-                            batchProgress.style.display = 'none';
-                            batchProgressBar.style.width = '0';
-                            batchStatus.innerHTML = '<p>Batch processing completed successfully!</p>';
-                            showNotification('Batch processing completed successfully');
-                        }, 500);
-                    }
-                }, 100);
-            });
-        }
-
         // Security file upload
-        const securityPdfFileInput = document.getElementById('securityPdfFile');
-        const securityOptions = document.getElementById('securityOptions');
-
         securityPdfFileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
@@ -2958,15 +2960,28 @@
 
         // Apply security button
         const applySecurityBtn = document.getElementById('applySecurityBtn');
-        const securityProgress = document.getElementById('securityProgress');
-        const securityProgressBar = document.getElementById('securityProgressBar');
-        const securityStatus = document.getElementById('securityStatus');
 
         if (applySecurityBtn) {
             applySecurityBtn.addEventListener('click', () => {
                 if (securityPdfFileInput.files.length === 0) {
                     showNotification('Please select a PDF file first', 'error');
                     return;
+                }
+                
+                // Validate password if password protection is enabled
+                if (enablePasswordProtection.checked) {
+                    const password = document.getElementById('pdfPassword').value;
+                    const confirmPassword = document.getElementById('confirmPdfPassword').value;
+                    
+                    if (!password) {
+                        showNotification('Please enter a password', 'error');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showNotification('Passwords do not match', 'error');
+                        return;
+                    }
                 }
                 
                 // Show progress
@@ -2985,7 +3000,45 @@
                         setTimeout(() => {
                             securityProgress.style.display = 'none';
                             securityProgressBar.style.width = '0';
-                            securityStatus.innerHTML = '<p>Security settings applied successfully!</p>';
+                            
+                            // Build list of applied security features
+                            let securityFeatures = [];
+                            
+                            if (enablePasswordProtection.checked) {
+                                securityFeatures.push('Password Protection');
+                            }
+                            
+                            if (enableDigitalSignature.checked) {
+                                securityFeatures.push('Digital Signature');
+                            }
+                            
+                            if (enableWatermark.checked) {
+                                securityFeatures.push('Watermark');
+                            }
+                            
+                            if (enableRedaction.checked) {
+                                securityFeatures.push('Redaction');
+                            }
+                            
+                            // Display applied security features
+                            securityAppliedList.innerHTML = '<h5>Applied Security Features:</h5><ul>';
+                            securityFeatures.forEach(feature => {
+                                securityAppliedList.innerHTML += `<li>${feature}</li>`;
+                            });
+                            securityAppliedList.innerHTML += '</ul>';
+                            
+                            // Show security results
+                            securityResults.classList.add('show');
+                            
+                            // Create a mock secured PDF blob for download
+                            const securedPdfData = new Blob(['Mock secured PDF data'], {type: 'application/pdf'});
+                            securedPdfBlob = securedPdfData;
+                            
+                            // Update recent files
+                            const fileName = securityPdfFileInput.files[0].name;
+                            const fileSize = (securityPdfFileInput.files[0].size / (1024 * 1024)).toFixed(2);
+                            updateRecentFiles(fileName, fileSize, 'Secured');
+                            
                             showNotification('Security settings applied successfully');
                         }, 500);
                     }
@@ -2993,74 +3046,184 @@
             });
         }
 
-        // Cloud service connections
-        const connectGoogleDrive = document.getElementById('connectGoogleDrive');
-        const googleDriveStatus = document.getElementById('googleDriveStatus');
+        // Download secured PDF button functionality
+        downloadSecuredPdfBtn.addEventListener('click', () => {
+            if (!securedPdfBlob) {
+                showNotification('No secured PDF available', 'error');
+                return;
+            }
+            
+            // Create a download link
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(securedPdfBlob);
+            
+            // Get original filename and add "_secured" suffix
+            const originalFileName = securityPdfFileInput.files[0].name;
+            const fileNameWithoutExtension = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+            const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+            const securedFileName = fileNameWithoutExtension + '_secured' + fileExtension;
+            
+            downloadLink.download = securedFileName;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            showNotification('Secured PDF downloaded successfully');
+        });
 
+        // Secure another PDF button functionality
+        secureAnotherPdfBtn.addEventListener('click', () => {
+            // Reset the form
+            securityPdfFileInput.value = '';
+            securityOptions.style.display = 'none';
+            securityResults.classList.remove('show');
+            securedPdfBlob = null;
+            
+            // Reset all security options
+            enablePasswordProtection.checked = false;
+            passwordFields.style.display = 'none';
+            enableDigitalSignature.checked = false;
+            signatureFields.style.display = 'none';
+            enableWatermark.checked = false;
+            watermarkFields.style.display = 'none';
+            enableRedaction.checked = false;
+            redactFields.style.display = 'none';
+            
+            // Scroll to top of the page
+            window.scrollTo(0, 0);
+            
+            showNotification('Ready to secure another PDF');
+        });
+
+        // Cloud service connections
         if (connectGoogleDrive) {
             connectGoogleDrive.addEventListener('click', () => {
-                // Simulate connection
-                googleDriveStatus.textContent = 'Connected';
-                connectGoogleDrive.textContent = 'Disconnect';
-                connectGoogleDrive.classList.remove('btn-primary');
-                connectGoogleDrive.classList.add('btn-secondary');
-                showNotification('Connected to Google Drive');
+                // Toggle connection status
+                if (googleDriveService.classList.contains('active')) {
+                    // Disconnect
+                    googleDriveService.classList.remove('active');
+                    googleDriveStatus.textContent = 'Not Connected';
+                    connectGoogleDrive.textContent = 'Connect';
+                    connectGoogleDrive.classList.remove('btn-secondary');
+                    connectGoogleDrive.classList.add('btn-primary');
+                    showNotification('Disconnected from Google Drive');
+                } else {
+                    // Connect
+                    googleDriveService.classList.add('active');
+                    googleDriveStatus.textContent = 'Connected';
+                    connectGoogleDrive.textContent = 'Disconnect';
+                    connectGoogleDrive.classList.remove('btn-primary');
+                    connectGoogleDrive.classList.add('btn-secondary');
+                    showNotification('Connected to Google Drive');
+                }
             });
         }
 
         const connectDropbox = document.getElementById('connectDropbox');
         const dropboxStatus = document.getElementById('dropboxStatus');
+        const dropboxService = document.getElementById('dropboxService');
 
         if (connectDropbox) {
             connectDropbox.addEventListener('click', () => {
-                // Simulate connection
-                dropboxStatus.textContent = 'Connected';
-                connectDropbox.textContent = 'Disconnect';
-                connectDropbox.classList.remove('btn-primary');
-                connectDropbox.classList.add('btn-secondary');
-                showNotification('Connected to Dropbox');
+                // Toggle connection status
+                if (dropboxService.classList.contains('active')) {
+                    // Disconnect
+                    dropboxService.classList.remove('active');
+                    dropboxStatus.textContent = 'Not Connected';
+                    connectDropbox.textContent = 'Connect';
+                    connectDropbox.classList.remove('btn-secondary');
+                    connectDropbox.classList.add('btn-primary');
+                    showNotification('Disconnected from Dropbox');
+                } else {
+                    // Connect
+                    dropboxService.classList.add('active');
+                    dropboxStatus.textContent = 'Connected';
+                    connectDropbox.textContent = 'Disconnect';
+                    connectDropbox.classList.remove('btn-primary');
+                    connectDropbox.classList.add('btn-secondary');
+                    showNotification('Connected to Dropbox');
+                }
             });
         }
 
         const connectOneDrive = document.getElementById('connectOneDrive');
         const oneDriveStatus = document.getElementById('oneDriveStatus');
+        const oneDriveService = document.getElementById('oneDriveService');
 
         if (connectOneDrive) {
             connectOneDrive.addEventListener('click', () => {
-                // Simulate connection
-                oneDriveStatus.textContent = 'Connected';
-                connectOneDrive.textContent = 'Disconnect';
-                connectOneDrive.classList.remove('btn-primary');
-                connectOneDrive.classList.add('btn-secondary');
-                showNotification('Connected to OneDrive');
+                // Toggle connection status
+                if (oneDriveService.classList.contains('active')) {
+                    // Disconnect
+                    oneDriveService.classList.remove('active');
+                    oneDriveStatus.textContent = 'Not Connected';
+                    connectOneDrive.textContent = 'Connect';
+                    connectOneDrive.classList.remove('btn-secondary');
+                    connectOneDrive.classList.add('btn-primary');
+                    showNotification('Disconnected from OneDrive');
+                } else {
+                    // Connect
+                    oneDriveService.classList.add('active');
+                    oneDriveStatus.textContent = 'Connected';
+                    connectOneDrive.textContent = 'Disconnect';
+                    connectOneDrive.classList.remove('btn-primary');
+                    connectOneDrive.classList.add('btn-secondary');
+                    showNotification('Connected to OneDrive');
+                }
             });
         }
 
         const connectAWS = document.getElementById('connectAWS');
         const awsStatus = document.getElementById('awsStatus');
+        const awsService = document.getElementById('awsService');
 
         if (connectAWS) {
             connectAWS.addEventListener('click', () => {
-                // Simulate connection
-                awsStatus.textContent = 'Connected';
-                connectAWS.textContent = 'Disconnect';
-                connectAWS.classList.remove('btn-primary');
-                connectAWS.classList.add('btn-secondary');
-                showNotification('Connected to Amazon S3');
+                // Toggle connection status
+                if (awsService.classList.contains('active')) {
+                    // Disconnect
+                    awsService.classList.remove('active');
+                    awsStatus.textContent = 'Not Connected';
+                    connectAWS.textContent = 'Connect';
+                    connectAWS.classList.remove('btn-secondary');
+                    connectAWS.classList.add('btn-primary');
+                    showNotification('Disconnected from Amazon S3');
+                } else {
+                    // Connect
+                    awsService.classList.add('active');
+                    awsStatus.textContent = 'Connected';
+                    connectAWS.textContent = 'Disconnect';
+                    connectAWS.classList.remove('btn-primary');
+                    connectAWS.classList.add('btn-secondary');
+                    showNotification('Connected to Amazon S3');
+                }
             });
         }
 
         const connectAzure = document.getElementById('connectAzure');
         const azureStatus = document.getElementById('azureStatus');
+        const azureService = document.getElementById('azureService');
 
         if (connectAzure) {
             connectAzure.addEventListener('click', () => {
-                // Simulate connection
-                azureStatus.textContent = 'Connected';
-                connectAzure.textContent = 'Disconnect';
-                connectAzure.classList.remove('btn-primary');
-                connectAzure.classList.add('btn-secondary');
-                showNotification('Connected to Azure Blob Storage');
+                // Toggle connection status
+                if (azureService.classList.contains('active')) {
+                    // Disconnect
+                    azureService.classList.remove('active');
+                    azureStatus.textContent = 'Not Connected';
+                    connectAzure.textContent = 'Connect';
+                    connectAzure.classList.remove('btn-secondary');
+                    connectAzure.classList.add('btn-primary');
+                    showNotification('Disconnected from Azure Blob Storage');
+                } else {
+                    // Connect
+                    azureService.classList.add('active');
+                    azureStatus.textContent = 'Connected';
+                    connectAzure.textContent = 'Disconnect';
+                    connectAzure.classList.remove('btn-primary');
+                    connectAzure.classList.add('btn-secondary');
+                    showNotification('Connected to Azure Blob Storage');
+                }
             });
         }
 
@@ -3263,6 +3426,9 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('reportFromDate').value = today;
             document.getElementById('reportToDate').value = today;
+            
+            // Set Google Drive as connected by default
+            googleDriveService.classList.add('active');
             
             // Show notification that the app is ready
             setTimeout(() => {
